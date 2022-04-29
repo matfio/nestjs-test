@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from '@nestjs/mongoose';
 // Models
+import { Model } from "mongoose";
 import { Product } from "./product.model";
 
 @Injectable()
 export class ProductsService {
+    constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
+
     private readonly products: Product[] = [];
     private index: number = 0;
 
@@ -17,13 +21,11 @@ export class ProductsService {
         return {product, index};
     }
 
-    insertProduct(title: string, description: string, price: number) {
-        const id = (this.index++).toString();
-        const newProduct = new Product(id, title, description, price )
-        this.products.push(newProduct);
-        return id; // Could specify :string in function, but Typescript can infer that automagically
+    async insertProduct(title: string, description: string, price: number) {
+        const newProduct = new this.productModel({title, description, price})
+        return await newProduct.save(); // Could specify :string in function, but Typescript can infer that automagically
     }
-
+    
     getProducts() {
         // return this.products; It works, but this basically creates a getter that open access to the array from outside
     
