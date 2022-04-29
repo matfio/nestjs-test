@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { title } from "process";
 // Models
 import { Product } from "./product.model";
 // Services
@@ -26,5 +27,18 @@ export class ProductsController {
     @Get(':id')
     getProductById(@Param('id') id: string): Product {
         return this.productsService.getProductById(id);
+    }
+
+    @Patch(':id')
+    updateProduct(
+        @Param('id') id: string,
+        @Body() body: {
+            title: string;
+            description: string;
+            price: number;
+        }
+    ) : any {
+        const {title, description, price} = body;
+        this.productsService.updateProductById(id, title, description, price);
     }
 }
