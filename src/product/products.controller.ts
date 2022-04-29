@@ -10,22 +10,22 @@ export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
     @Post()
-    addProduct(
+    async addProduct(
         @Body('title') title: string, // nestJS can read the body through decorators
         @Body('description') description: string,
         @Body('price') price: number
-    ): any {
-        const id = this.productsService.insertProduct(title, description, price);
+    ){
+        const id = await this.productsService.insertProduct(title, description, price);
         return { id }; //Typically API should return JSON
     }
 
     @Get()
-    getProducts(): Product[] {
+    async getProducts() {
         return this.productsService.getProducts();
     }
 
     @Get(':id')
-    getProductById(@Param('id') id: string): Product {
+    getProductById(@Param('id') id: string) {
         return this.productsService.getProductById(id);
     }
 

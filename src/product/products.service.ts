@@ -8,47 +8,65 @@ import { Product } from "./product.model";
 export class ProductsService {
     constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
 
-    private readonly products: Product[] = [];
-    private index: number = 0;
+    private transformProduct(p){
+        return {
+            id: p.id, 
+            title: p.title, 
+            description: p.description, 
+            price: p.price 
+        }
+    }
 
-    private getProduct(id: string) {
-        const index = this.products.findIndex(prod => prod.id === id);
-        const product = this.products[index];
-        if(index === -1){
+    private async getProduct(id: string): Promise<Product> {
+        let product;
+        try{
+            product = await this.productModel.findById(id).exec();
+        }catch(err) {
+            throw new NotFoundException('Could not find product');
+        }
+        
+        if(!product){
             throw new NotFoundException('Could not find product'); //nestJS sends a 404 automagically
         }
 
-        return {product, index};
+        return product;
     }
 
-    async insertProduct(title: string, description: string, price: number) {
+    async insertProduct(title: string, description: string, price: number): Promise<string> {
         const newProduct = new this.productModel({title, description, price})
-        return await newProduct.save(); // Could specify :string in function, but Typescript can infer that automagically
-    }
-    
-    getProducts() {
-        // return this.products; It works, but this basically creates a getter that open access to the array from outside
-    
-        // return [...this.products]; // Safer. Products are also passed by reference and can still be modified from outside
-
-        return [...this.products.map(product => ({...product}))]; //Safest. Returns a copy of the array AND a copy of all products. Normally an overkill :) 
+        const result = await newProduct.save(); // Could specify :string in function, but Typescript can infer that automagically
+        return result.id;
     }
 
-    getProductById(id: string) {
-        const product = this.getProduct(id).product;
-
-        return {...product};
+    async getProducts() {
+        const products = await this.productModel.find().exec();
+        return products.map(p => this.transformProduct(p));
     }
 
-    updateProductById(id: string, title: string, description: string, price: number){
-        const product = this.getProduct(id).product;
-        if(title){ product.title = title; }
-        if(description){ product.description = description; }
-        if(price){ product.price = price; }
+    async getProductById(id: string) {
+        const product = this.getProduct(id);
+        return this.transformProduct(product);
     }
 
-    deleteProductById(id: string){
-        const index = this.getProduct(id).index;
-        this.products.splice(index, 1);
+    async updateProductById(id: string, title: string, description: string, price: number){
+        const updatedProduct = await this.getProduct(id);
+        if(title){
+            updatedProduct.title = title;
+        }
+        if(description){
+            updatedProduct.description = description;
+        }
+        if(price){
+            updatedProduct.price = price;
+        }
+
+        updatedProduct.save();
+        return null;
+    }
+
+    async deleteProductById(id: string){
+        const product = await this.getProduct(id);
+        product.delete();
+        return null
     }
 }
