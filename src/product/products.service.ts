@@ -7,13 +7,14 @@ export class ProductsService {
     private readonly products: Product[] = [];
     private index: number = 0;
 
-    private getProduct(id: string): Product {
-        const product = this.products.find(prod => prod.id === id);
-        if(!product){
+    private getProduct(id: string) {
+        const index = this.products.findIndex(prod => prod.id === id);
+        const product = this.products[index];
+        if(index === -1){
             throw new NotFoundException('Could not find product'); //nestJS sends a 404 automagically
         }
 
-        return product;
+        return {product, index};
     }
 
     insertProduct(title: string, description: string, price: number) {
@@ -32,15 +33,20 @@ export class ProductsService {
     }
 
     getProductById(id: string) {
-        const product = this.getProduct(id);
+        const product = this.getProduct(id).product;
 
         return {...product};
     }
 
-    updateProductById(id:string, title: string, description: string, price: number){
-        const product = this.getProduct(id);
+    updateProductById(id: string, title: string, description: string, price: number){
+        const product = this.getProduct(id).product;
         if(title){ product.title = title; }
         if(description){ product.description = description; }
         if(price){ product.price = price; }
+    }
+
+    deleteProductById(id: string){
+        const index = this.getProduct(id).index;
+        this.products.splice(index, 1);
     }
 }
