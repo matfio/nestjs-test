@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Product {
+  id: ID!
+  title: String!
+  description: String
+  price: Int!
+}
+
 type User {
   _id: ID!
   name: String!
@@ -11,6 +18,7 @@ type User {
   membership: Boolean!
   membershipExpiration: DateTime
   creation: DateTime!
+  products: [Product!]
 }
 
 """
@@ -34,4 +42,5 @@ input CreateUserInput {
   surname: String!
   age: Int
   membership: Boolean = false
+  products: [ID!]
 }

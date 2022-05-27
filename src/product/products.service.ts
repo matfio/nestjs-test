@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 // Models
 import { Model } from "mongoose";
-import { Product } from "./product.model";
+import { Product, ProductDocument } from "./product.model";
 
 @Injectable()
 export class ProductsService {
@@ -17,7 +17,7 @@ export class ProductsService {
         }
     }
 
-    private async getProduct(id: string): Promise<Product> {
+    private async getProduct(id: string): Promise<ProductDocument> {
         let product;
         try{
             product = await this.productModel.findById(id).exec();

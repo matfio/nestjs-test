@@ -8,11 +8,14 @@ export class UsersService {
     constructor(@InjectModel(User.name) private readonly userModel:Model<UserDocument>) {}
 
     async findAll() {
-        return await this.userModel.find().lean();
+        //Populate will populate the products if any was added
+        //I'm adding them by id and it's all automatic
+        //(Wow)
+        return await this.userModel.find().populate('products').exec(); 
     }
 
     async findById(id: string) {
-        return await this.userModel.findById(id).lean();
+        return await this.userModel.findById(id).exec();
     }
 
     async createUser(user: CreateUserInput) {       

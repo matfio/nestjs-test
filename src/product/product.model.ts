@@ -1,14 +1,32 @@
+import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 
-export const ProductSchema = new mongoose.Schema({
-    title: {type: String, required: true},
-    description: String,
-    price: {type: Number, required: true}
-});
+@Schema()
+@ObjectType()
+export class Product {
+    @Field(() => ID)
+    id: string;
 
-export interface Product extends mongoose.Document {
-    id: string,
-    title: string,
-    description: string,
-    price: number
+    @Prop({ required: true })
+    @Field()
+    title: string;
+
+    @Prop()
+    @Field({ nullable: true })
+    description?: string;
+
+    @Prop()
+    @Field(() => Int)
+    price: number;
+}
+
+export type ProductDocument = Product & mongoose.Document;
+
+export const ProductSchema = SchemaFactory.createForClass(Product);
+
+@InputType()
+export class CreateProductInput {
+    @Field(() => ID)
+    id: string;
 }

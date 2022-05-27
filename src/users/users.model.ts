@@ -1,6 +1,7 @@
 import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { CreateProductInput, Product } from 'src/product/product.model';
 
 @Schema()
 @ObjectType()
@@ -37,11 +38,15 @@ export class User {
     @Prop({ default: Date.now, required: true })
     @Field()
     creation: Date;
+
+    @Prop({type: [{ type: mongoose.Schema.Types.ObjectId, ref: Product.name }] })
+    @Field(() => [Product], { nullable: true })
+    products?: Product[];
 }
 
 export type UserDocument = User & mongoose.Document;
 
-export const UsersSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User);
 
 //Keeping InputType and ObjectType separated is cleaner
 //Other solution is to use the same but give them separate names
@@ -62,4 +67,7 @@ export class CreateUserInput {
 
     @Field({ defaultValue: false })
     membership: boolean;
+
+    @Field(() => [ID], { nullable: true })
+    products?: string[];
 }
